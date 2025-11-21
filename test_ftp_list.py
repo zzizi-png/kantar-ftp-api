@@ -1,26 +1,35 @@
-from ftplib import FTP
+from ftplib import FTP_TLS
 
-FTP_HOST = "ftpadr.kantarmedia.fr"
-FTP_USER = "ADR_KETILMED_SMAUGER"
-FTP_PASS = "S09MAUGER12"
+host = "ftpadr.kantarmedia.fr"
+user = "ADR_KETILMED_SMAUGER"
+password = "S09MAUGER12"
 
 try:
-    print("🔌 Connexion au serveur FTP...")
-    ftp = FTP(FTP_HOST)
-    ftp.login(FTP_USER, FTP_PASS)
+    print("🔐 Connexion FTPS sécurisée...")
+    ftps = FTP_TLS()
+    
+    # Connexion au port 21
+    ftps.connect(host, 21, timeout=10)
+    
+    # Activation de TLS
+    ftps.auth()
+    ftps.prot_p()
 
-    print("✔ Connexion réussie !")
+    # Login
+    ftps.login(user, password)
+    print("✔ Connecté en FTPS (TLS)")
 
-    folder = "MENSUEL RADIO"
-    ftp.cwd(folder)
+    # Mode passif
+    ftps.set_pasv(True)
 
-    print(f"📂 Contenu du dossier : {folder}")
+    # Lister les dossiers à la racine
+    print("📂 Liste des dossiers :")
+    fichiers = ftps.nlst()
 
-    ftp.retrlines('LIST')
+    for f in fichiers:
+        print("  ➤", f)
 
-    ftp.quit()
+    ftps.quit()
 
 except Exception as e:
-    print("❌ Erreur :", e)
-
-
+    print("❌ Erreur FTPS :", e)
