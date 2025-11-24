@@ -9,7 +9,7 @@ remote_folder = "MENSUEL RADIO"
 remote_file = "202510 KETIL - DONNEES RADIO_ (1) RADIO_MENSUELLE.CSV"
 
 # 👉 Le nom du fichier en local
-local_file = "downloaded_radio.csv"
+local_file = "downloaded_radio2.csv"
 
 try:
     print("🔐 Connexion FTPS...")
