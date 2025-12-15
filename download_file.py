@@ -6,7 +6,7 @@ password = "S09MAUGER12"
 
 # 👉 Le dossier et fichier que tu veux télécharger
 remote_folder = "HEBDO RADIO"
-remote_file = "2025 semaine 49 KETIL - DONNEES RADIO HEBDO_ (1) RADIO_HEBDO.CSV"
+remote_file = "2025 semaine 50 KETIL - DONNEES RADIO HEBDO_ (1) RADIO_HEBDO.CSV"
 
 # 👉 Le nom du fichier en local
 local_file = "downloaded_radio3.csv"
