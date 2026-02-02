@@ -10,7 +10,7 @@ FTP_PASS = "S09MAUGER12"
 
 # 📂 Dossier et fichier à télécharger
 REMOTE_FOLDER = "HEBDO RADIO"
-REMOTE_FILE = "2026 semaine 4 KETIL - DONNEES RADIO HEBDO_ (1) RADIO_HEBDO.CSV"
+REMOTE_FILE = "2026 semaine 5 KETIL - DONNEES RADIO HEBDO_ (1) RADIO_HEBDO.CSV"
 
 @app.get("/download-file")
 def download_file():
