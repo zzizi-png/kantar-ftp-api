@@ -3,44 +3,59 @@ from ftplib import FTP_TLS
 
 app = FastAPI()
 
-# 🔐 Informations FTPS
 FTP_HOST = "ftpadr.kantarmedia.fr"
 FTP_USER = "ADR_KETILMED_SMAUGER"
 FTP_PASS = "S09MAUGER12"
-
-# 📂 Dossier et fichier à télécharger
 REMOTE_FOLDER = "HEBDO RADIO"
-REMOTE_FILE = "2026 semaine 27 KETIL - DONNEES RADIO HEBDO_ (1) RADIO_HEBDO.CSV"
+
+
+def _connect_ftps():
+    ftps = FTP_TLS()
+    ftps.connect(FTP_HOST, 21, timeout=15)
+    ftps.auth()
+    ftps.prot_p()
+    ftps.login(FTP_USER, FTP_PASS)
+    ftps.set_pasv(True)
+    ftps.cwd(REMOTE_FOLDER)
+    return ftps
+
+
+def _latest_csv(ftps) -> str | None:
+    files = [f for f in ftps.nlst() if f.upper().endswith(".CSV")]
+    # "2026 semaine 27 ..." → tri alphabétique = tri chronologique
+    return sorted(files)[-1] if files else None
+
 
 @app.get("/download-file")
 def download_file():
     try:
-        print("🔐 Connexion FTPS...")
-        ftps = FTP_TLS()
+        ftps = _connect_ftps()
+        remote_file = _latest_csv(ftps)
+        if not remote_file:
+            ftps.quit()
+            return {"error": "Aucun fichier CSV trouvé dans le dossier"}
 
-        # Connexion sécurisée
-        ftps.connect(FTP_HOST, 21, timeout=15)
-        ftps.auth()
-        ftps.prot_p()
-        ftps.login(FTP_USER, FTP_PASS)
-        ftps.set_pasv(True)
-
-        # Aller dans le dossier
-        ftps.cwd(REMOTE_FOLDER)
-
-        # Télécharger dans un buffer mémoire
         buffer = bytearray()
-        ftps.retrbinary(f"RETR {REMOTE_FILE}", buffer.extend)
-
-        # Fermer connexion
+        ftps.retrbinary(f"RETR {remote_file}", buffer.extend)
         ftps.quit()
 
-        # Retourner le CSV à Salesforce
         return Response(
             content=bytes(buffer),
             media_type="text/csv",
-            headers={"Content-Disposition": f"attachment; filename={REMOTE_FILE}"}
+            headers={"Content-Disposition": f"attachment; filename={remote_file}"},
         )
 
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@app.get("/latest-filename")
+def latest_filename():
+    """Diagnostic : retourne le nom du fichier qui sera téléchargé."""
+    try:
+        ftps = _connect_ftps()
+        name = _latest_csv(ftps)
+        ftps.quit()
+        return {"file": name}
     except Exception as e:
         return {"error": str(e)}
